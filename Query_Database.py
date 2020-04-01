@@ -8,6 +8,8 @@
 import pyodbc
 # This library is used to find the path of your database
 import os.path
+# This library is used to go from cursor to DataFrame
+from pandas import DataFrame
 
 # ## Variables that may need to be changed #############################################################################
 # This is the name of the database that needs to be accessed by python
@@ -26,6 +28,8 @@ table_name = 'STRIKE_REPORTS'
 # everything in the database with the database name STRIKE_REPORTS
 query = "SELECT * FROM {}".format(table_name)
 
+# This is needed to initialize the dictionary for the dataframe
+cursor_dict = []
 # ######################################################################################################################
 
 # ## Functions that are being run ######################################################################################
@@ -50,7 +54,50 @@ cursor = connection.cursor()
 # This is a method for the cursor object, you can execute a query which injects the SQL code using python
 cursor.execute(query)
 
-# This is an example of what comes out when accessing the database
-one_row = cursor.fetchone()
-# This allows you to see what the first row in the database looks like
-print(one_row)
+# This pulls off the names of from the header
+columns = [column[0] for column in cursor.description]
+
+# Show the output of the columns to make sure it looks correct
+print(columns)
+
+# Message to user because the conversion is slow
+print('Starting Conversion')
+
+# This code turns the columns into the dictionary name, row is the data
+for row in cursor.fetchall():
+    cursor_dict.append(dict(zip(columns, row)))
+
+# Message to user because this is a slow process
+print('Setting dataframe')
+
+# Load the cursor object as a DataFrame object
+df = DataFrame(cursor_dict)
+
+# Check that the DataFrame loads correctly
+print(df)
+# Some analysis of the DataFrame
+# # print("dataframe['INDEX_NR'].describe: "+'\n', df['INDEX_NR'].describe())
+# print("dataframe['INCIDENT_MONTH'].describe: "+'\n', df['INCIDENT_MONTH'].describe())
+# print("dataframe['TIME'].describe: "+'\n', df['TIME'].describe())
+# print("dataframe['DISTANCE'].describe: "+'\n', df['DISTANCE'].describe())
+# print("dataframe['AMA'].describe: "+'\n', df['AMA'].describe())
+# print("dataframe['AMO'].describe: "+'\n', df['AMO'].describe())
+# print("dataframe['EMA'].describe: "+'\n', df['EMA'].describe())
+# print("dataframe['EMO'].describe: "+'\n', df['EMO'].describe())
+# print("dataframe['AC_MASS'].describe: "+'\n', df['AC_MASS'].describe())
+# print("dataframe['NUM_ENGS'].describe: "+'\n', df['NUM_ENGS'].describe())
+# print("dataframe['ENG_1_POS'].describe: "+'\n', df['ENG_1_POS'].describe())
+# print("dataframe['ENG_2_POS'].describe: "+'\n', df['ENG_2_POS'].describe())
+# print("dataframe['ENG_3_POS'].describe: "+'\n', df['ENG_3_POS'].describe())
+# print("dataframe['ENG_4_POS'].describe: "+'\n', df['ENG_4_POS'].describe())
+# print("dataframe['HEIGHT'].describe: "+'\n', df['HEIGHT'].describe())
+# print("dataframe['SPEED'].describe: "+'\n', df['SPEED'].describe())
+# print("dataframe['AOS'].describe: "+'\n', df['AOS'].describe())
+# print("dataframe['COST_REPAIRS'].describe: "+'\n', df['COST_REPAIRS'].describe())
+# print("dataframe['OTHER_COST'].describe: "+'\n', df['OTHER_COST'].describe())
+# print("dataframe['COST_REPAIRS_INFL_ADJ'].describe: "+'\n', df['COST_REPAIRS_INFL_ADJ'].describe())
+# print("dataframe['COST_OTHER_INFL_ADJ'].describe: "+'\n', df['COST_OTHER_INFL_ADJ'].describe())
+# print("dataframe['NR_INJURIES'].describe: "+'\n', df['NR_FATALITIES'].describe())
+
+# Save the dataframe as a pickle file (compresses the database to load much faster)
+df.to_pickle("BIRD_STRIKE.pkl")

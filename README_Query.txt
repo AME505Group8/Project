@@ -1,3 +1,5 @@
+OBSOLETE FILE, only use this if you need to recreate the database from scratch
+
 1. Pull the Query_Database.py from the repository
 
 2. Create a folder called Database in the same folder as where your Query_Database.py file is located
