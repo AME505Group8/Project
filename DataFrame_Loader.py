@@ -1,4 +1,5 @@
 # Created by Matthew Rose
+# Function handle_non_numerical_data copied from Zijian (Jamey) Zhang
 # AME 505 Project
 #
 # This file is intended to load the existing dataframe called BIRD_STRIKE.pkl
@@ -6,27 +7,71 @@
 
 # Library for dataframe
 import pandas
+import numpy
 
-# Message for user
-print('Loading data')
 
-# Function to load the saved dataframe (a compressed version of the database)
-df = pandas.read_pickle("BIRD_STRIKE.pkl")
+def dataframe_loader(filename):
+    # This function is a quick way to load the code from a .pkl file
 
-# Check that the data loaded properly
-print(df)
+    # Message for user
+    print('Loading data')
 
-# Correct output looks like this ###########################
-#         INDEX_NR INCIDENT_DATE  ...    LUPDATE  TRANSFER #
-# 0         613189    1993-01-24  ... 2012-07-02     False #
-# 1         613814    1992-05-01  ... 2012-06-11     False #
-# 2         614017    1991-08-16  ... 2016-04-08     False #
-# 3         614185    1991-12-18  ... 2012-06-11     False #
-# 4         614652    1992-02-07  ... 2015-07-31     False #
-# ...          ...           ...  ...        ...       ... #
-# 233667    934325    2019-08-20  ... 2020-02-07     False #
-# 233668    922514    2019-08-08  ... 2020-01-13     False #
-# 233669    909147    2019-06-20  ... 2019-12-04     False #
-# 233670    921636    2019-08-06  ... 2020-01-02     False #
-# 233671    922174    2019-08-07  ... 2020-01-08     False #
-# ##########################################################
+    # Function to load the saved dataframe (a compressed version of the database)
+    df = pandas.read_pickle(filename)
+    # Check that the data loaded properly
+    print(df)
+    return df
+
+
+def handle_non_numerical_data(df):
+    # This function turns all the non numerical data into numbers for the machine learning code to use
+
+    # This prints a message to the user
+    print('Converting Data')
+
+    # Columns grab the header text from the dataframe
+    columns = df.columns.values
+
+    # This for loop goes through each column, one by one
+    for column in columns:
+        # Empty cells to be filled by the for loop, also resets the cells to empty for each column
+        text_digit_vals = {}
+
+        # Function to be called when mapping list to column of dataframe
+        def convert_to_int(val):
+            # Returns the position in the list text_digit_vals
+            return text_digit_vals[val]
+
+        # This if statement checks to see if the column is full of numbers or is a timestamp
+        if df[column].dtype != numpy.int64 and df[column].dtype != numpy.float64 and not (
+                pandas.core.dtypes.common.is_datetime_or_timedelta_dtype(df[column])):
+            # This changes the column to a list to use in a for loop
+            column_contents = df[column].values.tolist()
+            # This sets the column to a list called unique_elements
+            unique_elements = set(column_contents)
+            # This resets the counter x to 0
+            x = 0
+            # This for loop is used to iterate through the list of unique elements
+            for unique in unique_elements:
+                # This if statement checks to see if the value for unique is in the list text_digit_vals
+                if unique not in text_digit_vals:
+                    # This sets the position in the list text_digit_vals to a new value per the counter
+                    text_digit_vals[unique] = x
+                    # This adds another value to the counter
+                    x += 1
+
+            # This maps the list convert_to_int to the position in the column and writes over the current column
+            df[column] = list(map(convert_to_int, df[column]))
+        # This else statement was added because datastamps need special treatment in the function and will not work
+        # with the strategy above
+        elif pandas.core.dtypes.common.is_datetime_or_timedelta_dtype(df[column]):
+            # This creates a new list each time this elif is true
+            timestamp = list()
+            # This for loop, repeat the method used above just using range instead of creating a list
+            for y in range(len(df[column])):
+                # This creates a list for each time in the dataframe and turns it into a number from DD/MM/YYYY HH:MM:SS
+                timestamp.append(df[column][y].timestamp())
+            # places the list into the column since each timestamp needs to be recorded
+            df[column] = timestamp
+    print(df)
+    return df
