@@ -22,6 +22,23 @@ def dataframe_loader(filename):
     print(df)
     return df
 
+def dataframe_saver(dataframe, filename):
+    # This is a quick way to save off a new file so that changing the data doesn't permanently change the original data
+
+    # Message for user
+    print('Saving the data')
+    print(dataframe)
+
+    # Save the dataframe as a pickle file (compresses the database to load much faster)
+    dataframe.to_pickle(filename)
+
+    # Message to user
+    print('Data saved!')
+
+def unique(sequence):
+    # Code from Martin Broadhurst (http://www.martinbroadhurst.com/) Date accessed 4/5/2020
+    seen = set()
+    return [x for x in sequence if not (x in seen or seen.add(x))]
 
 def handle_non_numerical_data(df):
     # This function turns all the non numerical data into numbers for the machine learning code to use
@@ -48,15 +65,15 @@ def handle_non_numerical_data(df):
             # This changes the column to a list to use in a for loop
             column_contents = df[column].values.tolist()
             # This sets the column to a list called unique_elements
-            unique_elements = set(column_contents)
+            unique_elements = unique(column_contents)
             # This resets the counter x to 0
             x = 0
             # This for loop is used to iterate through the list of unique elements
-            for unique in unique_elements:
+            for unique1 in unique_elements:
                 # This if statement checks to see if the value for unique is in the list text_digit_vals
-                if unique not in text_digit_vals:
+                if unique1 not in text_digit_vals:
                     # This sets the position in the list text_digit_vals to a new value per the counter
-                    text_digit_vals[unique] = x
+                    text_digit_vals[unique1] = x
                     # This adds another value to the counter
                     x += 1
 

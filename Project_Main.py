@@ -3,7 +3,7 @@
 #
 # This is the main file to call multiple functions and store variable names
 
-from DataFrame_Loader import dataframe_loader, handle_non_numerical_data
+from DataFrame_Loader import dataframe_loader, handle_non_numerical_data, unique
 
 # ## Variables that may need to be changed #############################################################################
 
@@ -56,20 +56,34 @@ df = dataframe_loader(raw_data_filename)
 # 233671    922174    2019-08-07  ... 2020-01-08     False #
 # ##########################################################
 
+# Recommended so that the first index is the first date in the database, INDEX_NR is not in chronological order
+df = df.sort_values(by=['INCIDENT_DATE'])
+# Check that it worked
+print(df)
+# Allows list to have no blanks
+df['TIME_OF_DAY'] = df['TIME_OF_DAY'].fillna('')
+# Records all the strings
+column_contents = df['TIME_OF_DAY'].values.tolist()
+# Check that the unique function worked thanks to www.martinbroadhurst.com
+unique_elements = unique(column_contents)
+# Check that it worked
+print(unique_elements)
+# Should see the following ['Night', '', 'Dusk', 'Day', 'Dawn']
+
 # This converts the dataframe into a numbers only format
 df_numbers = handle_non_numerical_data(df)
 
 # Correct output looks like this #######################################################
 #         INDEX_NR  INCIDENT_DATE  INCIDENT_MONTH  ...  PERSON       LUPDATE  TRANSFER #
-# 0         613189   7.278336e+08               1  ...       5  1.341187e+09         0 #
-# 1         613814   7.046784e+08               5  ...       2  1.339373e+09         0 #
-# 2         614017   6.823008e+08               8  ...       4  1.460074e+09         0 #
-# 3         614185   6.930144e+08              12  ...       2  1.339373e+09         0 #
-# 4         614652   6.974208e+08               2  ...       4  1.438301e+09         0 #
+# 5124      841708   7.278336e+08               8  ...       0  1.341187e+09         0 #
+# 11603     608206   7.046784e+08               3  ...       1  1.339373e+09         0 #
+# 116097    608216   6.823008e+08               4  ...       2  1.460074e+09         0 #
+# 116090    608181   6.930144e+08               4  ...       0  1.339373e+09         0 #
+# 116091    608182   6.974208e+08               4  ...       0  1.438301e+09         0 #
 # ...          ...            ...             ...  ...     ...           ...       ... #
-# 233667    934325   1.566259e+09               8  ...       1  1.581034e+09         0 #
-# 233668    922514   1.565222e+09               8  ...       1  1.578874e+09         0 #
-# 233669    909147   1.560989e+09               6  ...       1  1.575418e+09         0 #
-# 233670    921636   1.565050e+09               8  ...       2  1.577923e+09         0 #
-# 233671    922174   1.565136e+09               8  ...       5  1.578442e+09         0 #
+# 230865    945904   1.566259e+09              10  ...       3  1.581034e+09         0 #
+# 59905     934903   1.565222e+09              10  ...       5  1.578874e+09         0 #
+# 47149     934905   1.560989e+09              10  ...       1  1.575418e+09         0 #
+# 232542    909294   1.565050e+09              10  ...       3  1.577923e+09         0 #
+# 9833      921068   1.565136e+09              10  ...       5  1.578442e+09           #
 # ######################################################################################
