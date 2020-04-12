@@ -49,17 +49,15 @@ if original_dataframe:
     # conditioned_data_filename
     save_conditioned = False
 
+# The filename where the preconditioned data is saved after the preconditioning is complete. Recommend using for
+# machine learning
+conditioned_data_filename = "BIRD_STRIKE_NUM_ONLY.pkl"
+
+# The filename where BIRD_STRIKE dictionary is saved. This file is for conditioned data
+dictionary_filename = "BIRD_STRIKE_DICTIONARY.pkl"
+
 # This is if you want to only load the dataframe after it has been preconditioned
 conditioned_dataframe = True
-
-# Load data only for conditioned_dataframe
-if conditioned_dataframe:
-    # The filename where the preconditioned data is saved after the preconditioning is complete. Recommend using for
-    # machine learning
-    conditioned_data_filename = "BIRD_STRIKE_NUM_ONLY.pkl"
-
-    # The filename where BIRD_STRIKE dictionary is saved. This file is for conditioned data
-    dictionary_filename = "BIRD_STRIKE_DICTIONARY.pkl"
 
 # ######################################################################################################################
 
@@ -90,6 +88,8 @@ elif original_dataframe:
 
     # This replaces blank space with and empty string (helps with machine learning)
     df = df.fillna('')
+    df = df.sort_values(by=['INCIDENT_DATE'])
+    print(df)
 
     if condition_data:
         # This converts the dataframe into a numbers only format
