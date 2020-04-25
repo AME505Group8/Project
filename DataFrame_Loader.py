@@ -2,7 +2,7 @@
 # Function handle_non_numerical_data copied from Zijian (Jamey) Zhang
 # AME 505 Project
 #
-# This file is intended to load the existing dataframe called BIRD_STRIKE.pkl
+# This file is intended provide all the functionality to load the data into a dataframe
 # It should load quickly
 
 # This library is used to query Access database
@@ -78,9 +78,10 @@ def dataframe_loader(filename):
 
 
 def save_dictionary(obj, name):
-    print('Saving dictionary')
+    print('Saving the dictionary')
     with open(name, 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+    print('Dictionary saved')
 
 
 def load_dictionary(name):
@@ -100,7 +101,7 @@ def dataframe_saver(dataframe, filename):
     dataframe.to_pickle(filename)
 
     # Message to user
-    print('Data saved!')
+    print('Data saved')
 
 
 def unique(sequence):

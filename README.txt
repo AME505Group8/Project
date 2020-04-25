@@ -1,3 +1,13 @@
+Updates 4/25/20
+
+Project_Main.py, updated to now include Keras ANN
+
+Machine_Learning.py, new file to handle all machine learning algorithms
+
+In_7_Out_AC_CLASS.hd5, Keras saved ANN model
+
+DataFrame_Loader.py, Minor changes to wording
+
 Updates 4/12/20
 
 Project_Main.py is now the wrapper file that holds all of the variables for Project_Main, DataFrame_Loader, and Query_Database

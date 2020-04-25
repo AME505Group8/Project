@@ -6,6 +6,7 @@
 import os.path
 from DataFrame_Loader import dataframe_loader, handle_non_numerical_data, dataframe_saver, query_database, \
     save_dictionary, load_dictionary
+from Machine_Learning import Keras_NN, Load_Keras_NN, Keras_Training_Data
 
 # ## Variables that may need to be changed #############################################################################
 
@@ -58,6 +59,32 @@ dictionary_filename = "BIRD_STRIKE_DICTIONARY.pkl"
 
 # This is if you want to only load the dataframe after it has been preconditioned
 conditioned_dataframe = True
+
+train_net = False
+
+load_net = True
+
+# This is the list to input into the keras neural network
+input_list = ['STATE', 'INCIDENT_MONTH', 'TIME_OF_DAY', 'AIRPORT_ID', 'TYPE_ENG', 'NUM_ENGS', 'PHASE_OF_FLIGHT']
+
+# This is the output of the keras neural network
+output_name = 'AC_CLASS'
+
+# This is the sample size for the balanced training data
+sample_size = 60000
+
+if train_net:
+    # This is how many times the training should repeat
+    number_of_epochs = 30
+
+    # Decide whether or not the model should be saved
+    save_model = False
+
+    # Name to save the model - THIS WILL OVERWRITE MODELS WITH THE SAME NAME
+    save_model_name = 'In_Out_Model'
+
+if load_net:
+    load_model_name = 'In_7_Out_AC_CLASS'
 
 # ######################################################################################################################
 
@@ -168,6 +195,19 @@ elif conditioned_dataframe:
     # Correct output looks like this ######################
     # {'Night': 0, '': 1, 'Dusk': 2, 'Day': 3, 'Dawn': 4} #
     # #####################################################
+
+    X, y, X1, y1, X_train_df, X_test_df, y_train_df, y_test_df, size_of_output = Keras_Training_Data(df, input_list,
+                                                                                                     output_name,
+                                                                                                     text_names,
+                                                                                                     sample_size)
+
+    if train_net:
+        Keras_NN(X_train_df, X_test_df, y_test_df, y_train_df, X1, y1, input_list, output_name,
+                 number_of_epochs, save_model, save_model_name, size_of_output)
+    elif load_net:
+        keras_model = Load_Keras_NN(load_model_name, X1, y1, X_test_df, y_test_df)
+
+    keras_model.summary()
 
 else:
     print('Check your loading variables, both are currently False')
