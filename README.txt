@@ -6,14 +6,19 @@ In the GUI folder, created the functions needed to pull out
 
 ****** engine_type is defined as the following list ['Piston', 'Turbojet', 'Turboprop', 'Turbofan', 'Turboshaft'] **********
 
-gui_predict_function(state, month, time_of_day, airport_id, engine_type, number_of_engines, phase_of_flight)
+prediction_name, aircraft_list = gui_predict_function(state, month, time_of_day, airport_id, engine_type, number_of_engines, phase_of_flight)
 
+Inputs:
 state is a string with definitions in text_names['STATE'] dictionary
 month is a integer
 time_of_day is a string with definitions in text_names['TIME_OF_DAY'] dictionary
 airport_id is a string with definitions in text_names['AIRPORT_ID'] dictionary
 number_of_engines is a string with definitions in text_names['AIRPORT_ID'] dictionary
 phase_of_flight is a string with definition in text_names['AIRPORT_ID'] dictionary
+
+Outputs: 
+prediction_name - this is a string with the answer
+aircraft_list - this is a list with the answer
 
 A working example is the following
 
@@ -25,6 +30,11 @@ engine_type = 'Turbofan'
 number_of_engines = '2'
 phase_of_flight = 'Climb'
 
+Returns prediction_name = 'Airplane'
+aircraft_list = ['A-320', 'B-767-300', 'B-737-800', 'A-321', 'EMB-170']
+
+These parameters are from Capt. Sully's flight and the top return is the A-320! (The airplane that landed in the Hudson)
+
 A different example is the following
 
 state = 'CA'
@@ -34,6 +44,9 @@ airport_id = 'KVNY'
 engine_type = 'Turboshaft'
 number_of_engines = '1'
 phase_of_flight = 'Departure'
+
+Returns prediction_name = 'Helicopter'
+aircraft_list = ['HUGHES 269A', 'ROBINSON R22', 'EC135', 'AEROS SA365', 'AEROS 350']
 
 Updated Machine_Learning.py in the main folder, should not effect anyone else's code
 
