@@ -1,4 +1,43 @@
 ----------------------------------------------------------------------------------
+Updates 4/26/20 - Matthew Rose
+----------------------------------------------------------------------------------
+
+In the GUI folder, created the functions needed to pull out 
+
+****** engine_type is defined as the following list ['Piston', 'Turbojet', 'Turboprop', 'Turbofan', 'Turboshaft'] **********
+
+gui_predict_function(state, month, time_of_day, airport_id, engine_type, number_of_engines, phase_of_flight)
+
+state is a string with definitions in text_names['STATE'] dictionary
+month is a integer
+time_of_day is a string with definitions in text_names['TIME_OF_DAY'] dictionary
+airport_id is a string with definitions in text_names['AIRPORT_ID'] dictionary
+number_of_engines is a string with definitions in text_names['AIRPORT_ID'] dictionary
+phase_of_flight is a string with definition in text_names['AIRPORT_ID'] dictionary
+
+A working example is the following
+
+state = 'NY'
+month = 1
+time_of_day = 'Day'
+airport_id = 'KLGA'
+engine_type = 'Turbofan'
+number_of_engines = '2'
+phase_of_flight = 'Climb'
+
+A different example is the following
+
+state = 'CA'
+month = 9
+time_of_day = 'Day'
+airport_id = 'KVNY'
+engine_type = 'Turboshaft'
+number_of_engines = '1'
+phase_of_flight = 'Departure'
+
+Updated Machine_Learning.py in the main folder, should not effect anyone else's code
+
+----------------------------------------------------------------------------------
 Updates 4/19/20 - Bruce I. Rivera - GUI Designer and Chief Idiot
 ----------------------------------------------------------------------------------
 
