@@ -1,4 +1,16 @@
 ----------------------------------------------------------------------------------
+Updates 4/27/20 - Bruce I. Rivera - GUI Designer and Chief Idiot
+----------------------------------------------------------------------------------
+
+Moved old GUI to the archive. Provided commit of the new GUI.
+
+Should work with the new function created by Matt, but I am unable to test due to some issue with the tensorflow plugin.
+
+Matt, Please pull this commit and test it. Let me know if there are any issues. You will need to install the PyQt5 plugin.
+
+Type 'pip install PyQt5' into your Python environment's terminal
+
+----------------------------------------------------------------------------------
 Updates 4/26/20 - Matthew Rose
 ----------------------------------------------------------------------------------
 
