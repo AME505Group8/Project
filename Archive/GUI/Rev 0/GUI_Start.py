@@ -6,15 +6,12 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-import time
-import threading
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from GUI_InputFldMgmt import Ui_GUI_InputFldMgmt
 from GUI_InputFltPln import Ui_GUI_InputFltPln
 from GUI_InputRskAssess import Ui_GUI_InputRskAssess
 from GUI_RsltFldMgmt import Ui_GUI_RsltFldMgmt
-from GUI_RsltFltPln import Ui_GUI_RsltFltPln
+from GUI.GUI_RsltFltPln import Ui_GUI_RsltFltPln
 from GUI_RsltRskAssess import Ui_GUI_RsltRskAssess
 
 
