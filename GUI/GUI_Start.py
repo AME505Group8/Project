@@ -270,11 +270,31 @@ class Ui_GUI_Start(object):
 
             # Populate all outputs onto the results screen
             self.GUI_RsltFltPln_Ui.FltPlnOutput.setText(prediction_name)
-            self.GUI_RsltFltPln_Ui.FltPlnACOut1.setText(aircraft_list[0])
-            self.GUI_RsltFltPln_Ui.FltPlnACOut2.setText(aircraft_list[1])
-            self.GUI_RsltFltPln_Ui.FltPlnACOut3.setText(aircraft_list[2])
-            self.GUI_RsltFltPln_Ui.FltPlnACOut4.setText(aircraft_list[3])
-            self.GUI_RsltFltPln_Ui.FltPlnACOut5.setText(aircraft_list[4])
+
+            if len(aircraft_list) > 0:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut1.setText(aircraft_list[0])
+            else:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut1.setText('NONE')
+
+            if len(aircraft_list) > 1:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut2.setText(aircraft_list[1])
+            else:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut2.setText('NONE')
+
+            if len(aircraft_list) > 2:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut3.setText(aircraft_list[2])
+            else:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut3.setText('NONE')
+
+            if len(aircraft_list) > 3:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut4.setText(aircraft_list[3])
+            else:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut4.setText('NONE')
+
+            if len(aircraft_list) > 4:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut5.setText(aircraft_list[4])
+            else:
+                self.GUI_RsltFltPln_Ui.FltPlnACOut5.setText('NONE')
 
             GUI_Start.hide()
             self.GUI_RsltFltPln.show()
