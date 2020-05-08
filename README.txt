@@ -1,4 +1,27 @@
 ----------------------------------------------------------------------------------
+Updates 5/8/20 - Bruce I. Rivera - GUI Designer and Chief Idiot
+----------------------------------------------------------------------------------
+
+They say "If it ain't broke, don't fix it."
+
+Welp... This is broke but, I swear to God, if you try to fix it, I WILL COME FOR YOU.
+
+The tool now runs acceptably. Please note the following:
+
+ - In order to start the tool you must:
+    - Ensure 'BIRD_STRIKE.pkl', 'BIRD_STRIKE_DICTIONARY.pkl', 'BIRD_STRIKE_NUM_ONLY.pkl', 'BIRD_STRIKE_REDUCED.pkl' have been copied out of the team Google Drive and pasted into your project root folder
+    - run GUI_Start.py
+ - The system now has the following functions
+    - Will generate the "Flight Planning" function as demonstrated during the presentation
+    - Will generate K Means plots based on inputs
+    - Will generate Dendrogram plots based on inputs
+ - In order to execute any of the three functions, all parameters must be selected AND have unique selection
+    - Failure to comply with this will, by design, render the relevant "Submit" button inoperable
+ - Note that there exist no deity with the power to make matplotlib execute a close command while using PyQt
+    - Matt and I tried to resolve this until past three in the morning; it is now six in the morning; it was not worth it.
+    - I have added warning messages to the GUI accordingly. Please heed them.
+
+----------------------------------------------------------------------------------
 Updates 4/27/20 - Bruce I. Rivera - GUI Designer and Chief Idiot
 ----------------------------------------------------------------------------------
 
