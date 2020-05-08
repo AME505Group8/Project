@@ -80,7 +80,3 @@ def gui_predict_function(state, month, time_of_day, airport_id, engine_type, num
                                      input_list, input_struct.month, rank_index, text_names, filter_name)
 
     return prediction_name, aircraft_list
-
-x = gui_predict_function('NY', 1, 'Day', 'KLGA', 'Turbofan', '2', 'Climb')
-
-print(x)

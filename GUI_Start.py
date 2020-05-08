@@ -9,9 +9,11 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from GUI.GUI_RsltFltPln import Ui_GUI_RsltFltPln
+from GUI.GUI_RsltKmeans import Ui_GUI_RsltKmeans
 from GUI_Predict_Function import gui_predict_function
+from KMEANS_V3 import kmeans_plot
 
-# Inputs lists
+# Flight planning inputs lists
 InputsMonth = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
                'November', 'December']
 InputsTOD = ['', 'Dawn', 'Day', 'Dusk', 'Night']
@@ -219,6 +221,11 @@ InputsENo = ['', '1', '2', '3', '4']
 InputsPhase = ['', 'Approach', 'Arrival', 'Climb', 'Departure', 'Descent', 'En Route', 'Landing Roll', 'Local',
                'Parked', 'Take-off Run', 'Taxi']
 
+# K Means inputs lists
+InputsKmParam1 = ['', 'Time', 'Airport ID', 'Airline']
+InputsKmParam2 = ['', 'Airport ID', 'Aircraft', 'Flight Phase', 'State']
+InputsKmK = ['', '1', '2', '3', '4', '5', '10', '15', '20']
+
 
 class Ui_GUI_Start(object):
 
@@ -228,15 +235,22 @@ class Ui_GUI_Start(object):
         self.GUI_RsltFltPln_Ui = Ui_GUI_RsltFltPln()
         self.GUI_RsltFltPln_Ui.setupUi(self.GUI_RsltFltPln)
 
+        self.GUI_RsltKmeans = QtWidgets.QMainWindow()
+        self.GUI_RsltKmeans_Ui = Ui_GUI_RsltKmeans()
+        self.GUI_RsltKmeans_Ui.setupUi(self.GUI_RsltKmeans)
+
         # Window button actions (Start window button actions near bottom of this script)
         self.GUI_RsltFltPln_Ui.QuitButton.clicked.connect(self.GoToExitScript)
         self.GUI_RsltFltPln_Ui.StartButton.clicked.connect(self.GoToStart)
-        self.GUI_RsltFltPln_Ui.PrintButton.clicked.connect(self.PrintRsltFltPln)
+
+        self.GUI_RsltKmeans_Ui.QuitButton.clicked.connect(self.GoToExitScript)
+        self.GUI_RsltKmeans_Ui.StartButton.clicked.connect(self.GoToStart)
 
     # Page transition and exit functions
     def GoToStart(self):
         GUI_Start.show()
         self.GUI_RsltFltPln.hide()
+        self.GUI_RsltKmeans.hide()
 
     def GoToRsltFltPln(self):
 
@@ -298,6 +312,27 @@ class Ui_GUI_Start(object):
 
             GUI_Start.hide()
             self.GUI_RsltFltPln.show()
+            self.GUI_RsltKmeans.hide()
+
+    def GoToRsltKmeans(self):
+        if self.KmeansParam1Box.currentIndex() != 0 and self.KmeansParam2Box.currentIndex() !=0 and \
+            self.KmeansKBox.currentIndex() !=0:
+
+            KmDictParam1 = {'Time': 'TIME', 'Airport ID': 'AIRPORT_ID', 'Airline': 'OPERATOR'}
+            KmDictParam2 = {'Airport ID': 'AIRPORT_ID', 'Aircraft': 'AIRCRAFT', 'Flight Phase': 'PHASE_OF_FLIGHT', 'State': 'STATE'}
+            KmDictK = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '10': 10, '15': 15, '20': 20}
+
+            a = KmDictParam1[InputsKmParam1[self.KmeansParam1Box.currentIndex()]]
+            b = KmDictParam2[InputsKmParam2[self.KmeansParam2Box.currentIndex()]]
+            k = KmDictK[InputsKmK[self.KmeansKBox.currentIndex()]]
+
+            print(a, b, k)
+
+            kmeans_plot(a, b, k)
+
+            GUI_Start.hide()
+            self.GUI_RsltFltPln.hide()
+            self.GUI_RsltKmeans.show()
 
     def GoToExitScript(self):
         sys.exit()
@@ -312,7 +347,7 @@ class Ui_GUI_Start(object):
         font.setPointSize(8)
         GUI_Start.setFont(font)
         GUI_Start.setStyleSheet("background-color: rgb(255, 255, 255);")
-        GUI_Start.setDockOptions(QtWidgets.QMainWindow.AllowTabbedDocks|QtWidgets.QMainWindow.AnimatedDocks)
+        GUI_Start.setDockOptions(QtWidgets.QMainWindow.AllowTabbedDocks | QtWidgets.QMainWindow.AnimatedDocks)
         self.centralwidget = QtWidgets.QWidget(GUI_Start)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -330,7 +365,8 @@ class Ui_GUI_Start(object):
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.label = QtWidgets.QLabel(self.TitleBlock)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
+                                           QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -352,8 +388,8 @@ class Ui_GUI_Start(object):
         font.setPointSize(20)
         self.label_5.setFont(font)
         self.label_5.setStyleSheet("color: rgb(255, 255, 255);\n"
-"background-color: rgb(51, 58, 62);")
-        self.label_5.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing)
+                                   "background-color: rgb(51, 58, 62);")
+        self.label_5.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing)
         self.label_5.setObjectName("label_5")
         self.verticalLayout_4.addWidget(self.label_5)
         self.label_6 = QtWidgets.QLabel(self.TitleBlock)
@@ -363,8 +399,8 @@ class Ui_GUI_Start(object):
         font.setPointSize(12)
         self.label_6.setFont(font)
         self.label_6.setStyleSheet("color: rgb(255, 255, 255);\n"
-"background-color: rgb(51, 58, 62);")
-        self.label_6.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTop|QtCore.Qt.AlignTrailing)
+                                   "background-color: rgb(51, 58, 62);")
+        self.label_6.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTop | QtCore.Qt.AlignTrailing)
         self.label_6.setObjectName("label_6")
         self.verticalLayout_4.addWidget(self.label_6)
         self.horizontalLayout_2.addLayout(self.verticalLayout_4)
@@ -397,7 +433,7 @@ class Ui_GUI_Start(object):
         font.setPointSize(15)
         self.label_4.setFont(font)
         self.label_4.setStyleSheet("background-color: rgb(51, 58, 62);\n"
-"color: rgb(255, 255, 255);")
+                                   "color: rgb(255, 255, 255);")
         self.label_4.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.label_4.setFrameShadow(QtWidgets.QFrame.Plain)
         self.label_4.setLineWidth(1)
@@ -410,15 +446,15 @@ class Ui_GUI_Start(object):
         font.setPointSize(12)
         self.label_2.setFont(font)
         self.label_2.setScaledContents(False)
-        self.label_2.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.label_2.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_2.setWordWrap(True)
         self.label_2.setObjectName("label_2")
         self.verticalLayout.addWidget(self.label_2)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem)
         self.formLayout = QtWidgets.QFormLayout()
-        self.formLayout.setLabelAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.formLayout.setFormAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.formLayout.setLabelAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
+        self.formLayout.setFormAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.formLayout.setSpacing(5)
         self.formLayout.setObjectName("formLayout")
         self.label_7 = QtWidgets.QLabel(self.frame)
@@ -556,7 +592,7 @@ class Ui_GUI_Start(object):
         self.RsltFltPlnButton.setFont(font)
         self.RsltFltPlnButton.setToolTipDuration(0)
         self.RsltFltPlnButton.setStyleSheet("background-color: rgb(101, 117, 125);\n"
-"color: rgb(255, 255, 255);")
+                                            "color: rgb(255, 255, 255);")
         self.RsltFltPlnButton.setObjectName("RsltFltPlnButton")
         self.horizontalLayout_4.addWidget(self.RsltFltPlnButton)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
@@ -580,7 +616,7 @@ class Ui_GUI_Start(object):
         font.setPointSize(15)
         self.label_13.setFont(font)
         self.label_13.setStyleSheet("background-color: rgb(51, 58, 62);\n"
-"color: rgb(255, 255, 255);")
+                                    "color: rgb(255, 255, 255);")
         self.label_13.setAlignment(QtCore.Qt.AlignCenter)
         self.label_13.setObjectName("label_13")
         self.verticalLayout_2.addWidget(self.label_13)
@@ -589,13 +625,14 @@ class Ui_GUI_Start(object):
         font.setFamily("Tw Cen MT")
         font.setPointSize(12)
         self.label_3.setFont(font)
-        self.label_3.setAlignment(QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.label_3.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label_3.setWordWrap(True)
         self.label_3.setObjectName("label_3")
         self.verticalLayout_2.addWidget(self.label_3)
         spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem3)
         self.formLayout_2 = QtWidgets.QFormLayout()
+        self.formLayout_2.setLabelAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.formLayout_2.setSpacing(5)
         self.formLayout_2.setObjectName("formLayout_2")
         self.label_14 = QtWidgets.QLabel(self.frame_2)
@@ -603,37 +640,55 @@ class Ui_GUI_Start(object):
         font.setFamily("Tw Cen MT")
         font.setPointSize(12)
         self.label_14.setFont(font)
-        self.label_14.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_14.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_14.setObjectName("label_14")
         self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_14)
-        self.FltPlnParam1Box = QtWidgets.QComboBox(self.frame_2)
-        self.FltPlnParam1Box.setMinimumSize(QtCore.QSize(0, 20))
+        self.KmeansParam1Box = QtWidgets.QComboBox(self.frame_2)
+        self.KmeansParam1Box.setMinimumSize(QtCore.QSize(0, 20))
         font = QtGui.QFont()
         font.setFamily("Tw Cen MT")
         font.setPointSize(12)
-        self.FltPlnParam1Box.setFont(font)
-        self.FltPlnParam1Box.setStyleSheet("background-color: rgb(223, 227, 229);")
-        self.FltPlnParam1Box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
-        self.FltPlnParam1Box.setObjectName("FltPlnParam1Box")
-        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.FltPlnParam1Box)
+        self.KmeansParam1Box.setFont(font)
+        self.KmeansParam1Box.setStyleSheet("background-color: rgb(223, 227, 229);")
+        self.KmeansParam1Box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.KmeansParam1Box.setObjectName("KmeansParam1Box")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.KmeansParam1Box)
         self.label_15 = QtWidgets.QLabel(self.frame_2)
         font = QtGui.QFont()
         font.setFamily("Tw Cen MT")
         font.setPointSize(12)
         self.label_15.setFont(font)
-        self.label_15.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_15.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_15.setObjectName("label_15")
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_15)
-        self.FltPlnParam2Box = QtWidgets.QComboBox(self.frame_2)
-        self.FltPlnParam2Box.setMinimumSize(QtCore.QSize(0, 20))
+        self.KmeansParam2Box = QtWidgets.QComboBox(self.frame_2)
+        self.KmeansParam2Box.setMinimumSize(QtCore.QSize(0, 20))
         font = QtGui.QFont()
         font.setFamily("Tw Cen MT")
         font.setPointSize(12)
-        self.FltPlnParam2Box.setFont(font)
-        self.FltPlnParam2Box.setStyleSheet("background-color: rgb(223, 227, 229);")
-        self.FltPlnParam2Box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
-        self.FltPlnParam2Box.setObjectName("FltPlnParam2Box")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.FltPlnParam2Box)
+        self.KmeansParam2Box.setFont(font)
+        self.KmeansParam2Box.setStyleSheet("background-color: rgb(223, 227, 229);")
+        self.KmeansParam2Box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.KmeansParam2Box.setObjectName("KmeansParam2Box")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.KmeansParam2Box)
+        self.KmeansKBox = QtWidgets.QComboBox(self.frame_2)
+        self.KmeansKBox.setMinimumSize(QtCore.QSize(0, 20))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        self.KmeansKBox.setFont(font)
+        self.KmeansKBox.setStyleSheet("background-color: rgb(223, 227, 229);")
+        self.KmeansKBox.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.KmeansKBox.setObjectName("KmeansKBox")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.KmeansKBox)
+        self.label_21 = QtWidgets.QLabel(self.frame_2)
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        self.label_21.setFont(font)
+        self.label_21.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
+        self.label_21.setObjectName("label_21")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_21)
         self.verticalLayout_2.addLayout(self.formLayout_2)
         spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem4)
@@ -642,20 +697,111 @@ class Ui_GUI_Start(object):
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem5)
-        self.RsltFunc2Button = QtWidgets.QPushButton(self.frame_2)
+        self.RsltKmeansButton = QtWidgets.QPushButton(self.frame_2)
         font = QtGui.QFont()
         font.setFamily("Tw Cen MT")
         font.setPointSize(12)
         font.setBold(False)
         font.setWeight(50)
-        self.RsltFunc2Button.setFont(font)
-        self.RsltFunc2Button.setToolTipDuration(0)
-        self.RsltFunc2Button.setStyleSheet("background-color: rgb(101, 117, 125);\n"
-"color: rgb(255, 255, 255);")
-        self.RsltFunc2Button.setObjectName("RsltFunc2Button")
-        self.horizontalLayout_5.addWidget(self.RsltFunc2Button)
+        self.RsltKmeansButton.setFont(font)
+        self.RsltKmeansButton.setToolTipDuration(0)
+        self.RsltKmeansButton.setStyleSheet("background-color: rgb(101, 117, 125);\n"
+                                            "color: rgb(255, 255, 255);")
+        self.RsltKmeansButton.setObjectName("RsltKmeansButton")
+        self.horizontalLayout_5.addWidget(self.RsltKmeansButton)
         self.verticalLayout_2.addLayout(self.horizontalLayout_5)
         self.horizontalLayout.addWidget(self.frame_2)
+        self.frame_3 = QtWidgets.QFrame(self.MainContent)
+        self.frame_3.setStyleSheet("background-color: rgb(161, 172, 178);")
+        self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_3.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_3.setObjectName("frame_3")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.frame_3)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.label_17 = QtWidgets.QLabel(self.frame_3)
+        self.label_17.setMinimumSize(QtCore.QSize(0, 30))
+        self.label_17.setMaximumSize(QtCore.QSize(16777215, 30))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(15)
+        self.label_17.setFont(font)
+        self.label_17.setStyleSheet("background-color: rgb(51, 58, 62);\n"
+                                    "color: rgb(255, 255, 255);")
+        self.label_17.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_17.setObjectName("label_17")
+        self.verticalLayout_3.addWidget(self.label_17)
+        self.label_18 = QtWidgets.QLabel(self.frame_3)
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        self.label_18.setFont(font)
+        self.label_18.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+        self.label_18.setWordWrap(True)
+        self.label_18.setObjectName("label_18")
+        self.verticalLayout_3.addWidget(self.label_18)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem6)
+        self.formLayout_3 = QtWidgets.QFormLayout()
+        self.formLayout_3.setSpacing(5)
+        self.formLayout_3.setObjectName("formLayout_3")
+        self.label_19 = QtWidgets.QLabel(self.frame_3)
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        self.label_19.setFont(font)
+        self.label_19.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
+        self.label_19.setObjectName("label_19")
+        self.formLayout_3.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_19)
+        self.DendroParam1Box = QtWidgets.QComboBox(self.frame_3)
+        self.DendroParam1Box.setMinimumSize(QtCore.QSize(0, 20))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        self.DendroParam1Box.setFont(font)
+        self.DendroParam1Box.setStyleSheet("background-color: rgb(223, 227, 229);")
+        self.DendroParam1Box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.DendroParam1Box.setObjectName("DendroParam1Box")
+        self.formLayout_3.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.DendroParam1Box)
+        self.label_20 = QtWidgets.QLabel(self.frame_3)
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        self.label_20.setFont(font)
+        self.label_20.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
+        self.label_20.setObjectName("label_20")
+        self.formLayout_3.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_20)
+        self.DendroParam2Box = QtWidgets.QComboBox(self.frame_3)
+        self.DendroParam2Box.setMinimumSize(QtCore.QSize(0, 20))
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        self.DendroParam2Box.setFont(font)
+        self.DendroParam2Box.setStyleSheet("background-color: rgb(223, 227, 229);")
+        self.DendroParam2Box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.DendroParam2Box.setObjectName("DendroParam2Box")
+        self.formLayout_3.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.DendroParam2Box)
+        self.verticalLayout_3.addLayout(self.formLayout_3)
+        spacerItem7 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem7)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setSpacing(10)
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem8)
+        self.RsltDendroButton = QtWidgets.QPushButton(self.frame_3)
+        font = QtGui.QFont()
+        font.setFamily("Tw Cen MT")
+        font.setPointSize(12)
+        font.setBold(False)
+        font.setWeight(50)
+        self.RsltDendroButton.setFont(font)
+        self.RsltDendroButton.setToolTipDuration(0)
+        self.RsltDendroButton.setStyleSheet("background-color: rgb(101, 117, 125);\n"
+                                            "color: rgb(255, 255, 255);")
+        self.RsltDendroButton.setObjectName("RsltDendroButton")
+        self.horizontalLayout_6.addWidget(self.RsltDendroButton)
+        self.verticalLayout_3.addLayout(self.horizontalLayout_6)
+        self.horizontalLayout.addWidget(self.frame_3)
         self.verticalLayout_5.addWidget(self.MainContent)
         self.ButtonBar = QtWidgets.QFrame(self.centralwidget)
         self.ButtonBar.setMaximumSize(QtCore.QSize(16777215, 50))
@@ -675,11 +821,11 @@ class Ui_GUI_Start(object):
         font.setPointSize(12)
         self.QuitButton.setFont(font)
         self.QuitButton.setStyleSheet("background-color: rgb(101, 117, 125);\n"
-"color: rgb(255, 255, 255);")
+                                      "color: rgb(255, 255, 255);")
         self.QuitButton.setObjectName("QuitButton")
         self.horizontalLayout_3.addWidget(self.QuitButton)
-        spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem6)
+        spacerItem9 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem9)
         self.verticalLayout_5.addWidget(self.ButtonBar)
         self.MainContent.raise_()
         self.TitleBlock.raise_()
@@ -705,6 +851,10 @@ class Ui_GUI_Start(object):
         self.FltPlnENoBox.addItems(InputsENo)
         self.FltPlnPhaseBox.addItems(InputsPhase)
 
+        self.KmeansParam1Box.addItems(InputsKmParam1)
+        self.KmeansParam2Box.addItems(InputsKmParam2)
+        self.KmeansKBox.addItems(InputsKmK)
+
     def retranslateUi(self, GUI_Start):
         _translate = QtCore.QCoreApplication.translate
         GUI_Start.setWindowTitle(_translate("GUI_Start", "MainWindow"))
@@ -714,21 +864,28 @@ class Ui_GUI_Start(object):
         self.label_2.setText(_translate("GUI_Start", "Returns the aircraft class and the highest risk aircraft for the given parameters provided below."))
         self.label_7.setText(_translate("GUI_Start", "Month"))
         self.label_8.setText(_translate("GUI_Start", "State"))
-        self.label_9.setText(_translate("GUI_Start", "Airport ID"))
+        self.label_9.setText(_translate("GUI_Start", "Airport Code"))
         self.label_10.setText(_translate("GUI_Start", "Engine Type"))
         self.label_11.setText(_translate("GUI_Start", "Number of Engines"))
         self.label_12.setText(_translate("GUI_Start", "Phase of Flight"))
         self.label_16.setText(_translate("GUI_Start", "Time of Day"))
         self.RsltFltPlnButton.setText(_translate("GUI_Start", "Submit"))
-        self.label_13.setText(_translate("GUI_Start", "Function 2 Title"))
-        self.label_3.setText(_translate("GUI_Start", "Placeholder function 2 description text"))
+        self.label_13.setText(_translate("GUI_Start", "Data Viewer (K Means)"))
+        self.label_3.setText(_translate("GUI_Start", "Plots the two selected parameters against each other and generates a K Means plot."))
         self.label_14.setText(_translate("GUI_Start", "Param1"))
         self.label_15.setText(_translate("GUI_Start", "Param2"))
-        self.RsltFunc2Button.setText(_translate("GUI_Start", "Submit"))
+        self.label_21.setText(_translate("GUI_Start", "K"))
+        self.RsltKmeansButton.setText(_translate("GUI_Start", "Submit"))
+        self.label_17.setText(_translate("GUI_Start", "Data Viewer (Dendrogram)"))
+        self.label_18.setText(_translate("GUI_Start", "Plots a dendrogram which demonstrates the hierarchical relationships between the data points"))
+        self.label_19.setText(_translate("GUI_Start", "Param1"))
+        self.label_20.setText(_translate("GUI_Start", "Param2"))
+        self.RsltDendroButton.setText(_translate("GUI_Start", "Submit"))
         self.QuitButton.setText(_translate("GUI_Start", "Quit"))
 
         # Start Window Button Actions
         self.RsltFltPlnButton.clicked.connect(self.GoToRsltFltPln)
+        self.RsltKmeansButton.clicked.connect(self.GoToRsltKmeans)
         self.QuitButton.clicked.connect(self.GoToExitScript)
 
     # Result printing functions
