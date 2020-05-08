@@ -59,7 +59,7 @@ def kmeans_plot(a,b,k):
 
         # This is if you want to save off the data after it is preconditioned. WARNING, it will overwrite any data saved as
         # conditioned_data_filename
-        save_conditioned = True
+        save_conditioned = False
 
     # The filename where the preconditioned data is saved after the preconditioning is complete. Recommend using for
     # machine learning
@@ -127,8 +127,6 @@ def kmeans_plot(a,b,k):
 
         #print table
         print(tabulate(df.head(), headers='keys', tablefmt='psql',showindex=False)) #makes the table pretty
-
-        df.to_excel("reduced_output.xlsx")
 
         df = df[[a,b]]
         text = df.to_numpy()

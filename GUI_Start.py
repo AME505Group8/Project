@@ -8,8 +8,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from GUI_RsltFltPln import Ui_GUI_RsltFltPln
-from Functions.GUI_Predict_Function import gui_predict_function
+from GUI.GUI_RsltFltPln import Ui_GUI_RsltFltPln
+from GUI_Predict_Function import gui_predict_function
 
 # Inputs lists
 InputsMonth = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
