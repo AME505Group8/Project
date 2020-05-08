@@ -6,15 +6,20 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+
+# Import GUI screen objects
 from GUI.GUI_RsltFltPln import Ui_GUI_RsltFltPln
 from GUI.GUI_RsltKmeans import Ui_GUI_RsltKmeans
+from GUI.GUI_RsltDendro import Ui_GUI_RsltDendro
+
+# Import executable functions
 from GUI_Predict_Function import gui_predict_function
 from KMEANS_V3 import kmeans_plot
+from dendrogram_grouped import dendrogram
 
 # K Means multithread
 class RunKmeans(QRunnable):
@@ -24,6 +29,15 @@ class RunKmeans(QRunnable):
     def run(self):
 
         kmeans_plot(a, b, k)
+
+# Dendrogram multithread
+class RunDendro(QRunnable):
+
+    @pyqtSlot()
+
+    def run(self):
+
+        dendrogram(input1, input2)
 
 # Flight planning inputs lists
 InputsMonth = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
@@ -238,6 +252,8 @@ InputsKmParam1 = ['', 'Time', 'Airport ID', 'Airline']
 InputsKmParam2 = ['', 'Airport ID', 'Aircraft', 'Flight Phase', 'State']
 InputsKmK = ['', '1', '2', '3', '4', '5', '10', '15', '20']
 
+# Dendrogram inputs lists
+InputsDendro = ['', 'Month', 'Time of Day', 'State', 'Aircraft Class', 'Flight Phase', 'Count']
 
 class Ui_GUI_Start(object):
 
@@ -255,6 +271,10 @@ class Ui_GUI_Start(object):
         self.GUI_RsltKmeans_Ui = Ui_GUI_RsltKmeans()
         self.GUI_RsltKmeans_Ui.setupUi(self.GUI_RsltKmeans)
 
+        self.GUI_RsltDendro = QtWidgets.QMainWindow()
+        self.GUI_RsltDendro_Ui = Ui_GUI_RsltDendro()
+        self.GUI_RsltDendro_Ui.setupUi(self.GUI_RsltDendro)
+
         # Window button actions (Start window button actions near bottom of this script)
         self.GUI_RsltFltPln_Ui.QuitButton.clicked.connect(self.GoToExitScript)
         self.GUI_RsltFltPln_Ui.StartButton.clicked.connect(self.GoToStart)
@@ -262,11 +282,22 @@ class Ui_GUI_Start(object):
         self.GUI_RsltKmeans_Ui.QuitButton.clicked.connect(self.GoToExitScript)
         self.GUI_RsltKmeans_Ui.StartButton.clicked.connect(self.GoToStart)
 
+        self.GUI_RsltDendro_Ui.QuitButton.clicked.connect(self.GoToExitScript)
+        self.GUI_RsltDendro_Ui.StartButton.clicked.connect(self.GoToStart)
+
     # Page transition and exit functions
     def GoToStart(self):
+        # Kill potentially running threads
+        worker1 = RunKmeans()
+        self.threadpool.cancel(worker1)
+        worker2 = RunDendro()
+        self.threadpool.cancel(worker2)
+
+        # Window hide/show
         GUI_Start.show()
         self.GUI_RsltFltPln.hide()
         self.GUI_RsltKmeans.hide()
+        self.GUI_RsltDendro.hide()
 
     def GoToRsltFltPln(self):
 
@@ -326,31 +357,71 @@ class Ui_GUI_Start(object):
             else:
                 self.GUI_RsltFltPln_Ui.FltPlnACOut5.setText('NONE')
 
+            # Window hide/show
             GUI_Start.hide()
             self.GUI_RsltFltPln.show()
             self.GUI_RsltKmeans.hide()
+            self.GUI_RsltDendro.hide()
 
     def GoToRsltKmeans(self):
-        if self.KmeansParam1Box.currentIndex() != 0 and self.KmeansParam2Box.currentIndex() !=0 and \
-            self.KmeansKBox.currentIndex() !=0:
 
+        # Ensure all parameters are entered and they are distinct from one another
+        if self.KmeansParam1Box.currentIndex() != 0 and self.KmeansParam2Box.currentIndex() !=0 and \
+                self.KmeansKBox.currentIndex() !=0 and \
+                InputsKmParam1[self.KmeansParam1Box.currentIndex()] != InputsKmParam2[self.KmeansParam2Box.currentIndex()]:
+
+            # Process user friendly inputs into function arguments
             KmDictParam1 = {'Time': 'TIME', 'Airport ID': 'AIRPORT_ID', 'Airline': 'OPERATOR'}
             KmDictParam2 = {'Airport ID': 'AIRPORT_ID', 'Aircraft': 'AIRCRAFT', 'Flight Phase': 'PHASE_OF_FLIGHT', 'State': 'STATE'}
             KmDictK = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '10': 10, '15': 15, '20': 20}
 
+            # Establish arguments for K Means function
             global a, b, k
             a = KmDictParam1[InputsKmParam1[self.KmeansParam1Box.currentIndex()]]
             b = KmDictParam2[InputsKmParam2[self.KmeansParam2Box.currentIndex()]]
             k = KmDictK[InputsKmK[self.KmeansKBox.currentIndex()]]
 
-            worker = RunKmeans()
-            self.threadpool.start(worker)
+            # Run function in separate thread
+            KmWorker = RunKmeans()
+            self.threadpool.start(KmWorker)
 
+            # Window hide/show
             GUI_Start.hide()
             self.GUI_RsltFltPln.hide()
             self.GUI_RsltKmeans.show()
+            self.GUI_RsltDendro.hide()
+
+    def GoToRsltDendro(self):
+        # Ensure all parameters are entered and they are distinct from one another
+        if self.DendroParam1Box.currentIndex() != 0 and self.DendroParam2Box.currentIndex() != 0 and \
+                self.DendroParam1Box.currentIndex() != self.DendroParam2Box.currentIndex():
+
+            # Process user friendly inputs into function arguments
+            DendroDict = {'Month': 'INCIDENT_MONTH', 'Time of Day': 'TIME_OF_DAY', 'State': 'STATE', \
+                          'Aircraft Class': 'AC_CLASS', 'Flight Phase': 'PHASE_OF_FLIGHT', 'Count': 'count'}
+
+            # Establish arguments for dendrogram function
+            global input1, input2
+            input1 = DendroDict[InputsDendro[self.DendroParam1Box.currentIndex()]]
+            input2 = DendroDict[InputsDendro[self.DendroParam2Box.currentIndex()]]
+
+            # Run function in separate thread
+            DendroWorker = RunDendro()
+            self.threadpool.start(DendroWorker)
+
+            # Window hide/show
+            GUI_Start.hide()
+            self.GUI_RsltFltPln.hide()
+            self.GUI_RsltKmeans.hide()
+            self.GUI_RsltDendro.show()
 
     def GoToExitScript(self):
+        # Kill potentially running threads
+        worker1 = RunKmeans()
+        self.threadpool.cancel(worker1)
+        worker2 = RunDendro()
+        self.threadpool.cancel(worker2)
+
         sys.exit()
 
     # Auto-generated code
@@ -389,7 +460,7 @@ class Ui_GUI_Start(object):
         self.label.setSizePolicy(sizePolicy)
         self.label.setMaximumSize(QtCore.QSize(571, 101))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("Assets/GUI_StartScreenGraphic.jpg"))
+        self.label.setPixmap(QtGui.QPixmap("GUI/Assets/GUI_StartScreenGraphic.jpg"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
         self.horizontalLayout_2.addWidget(self.label)
@@ -866,10 +937,11 @@ class Ui_GUI_Start(object):
         self.FltPlnETypeBox.addItems(InputsEType)
         self.FltPlnENoBox.addItems(InputsENo)
         self.FltPlnPhaseBox.addItems(InputsPhase)
-
         self.KmeansParam1Box.addItems(InputsKmParam1)
         self.KmeansParam2Box.addItems(InputsKmParam2)
         self.KmeansKBox.addItems(InputsKmK)
+        self.DendroParam1Box.addItems(InputsDendro)
+        self.DendroParam2Box.addItems(InputsDendro)
 
     def retranslateUi(self, GUI_Start):
         _translate = QtCore.QCoreApplication.translate
@@ -902,11 +974,9 @@ class Ui_GUI_Start(object):
         # Start Window Button Actions
         self.RsltFltPlnButton.clicked.connect(self.GoToRsltFltPln)
         self.RsltKmeansButton.clicked.connect(self.GoToRsltKmeans)
+        self.RsltDendroButton.clicked.connect(self.GoToRsltDendro)
         self.QuitButton.clicked.connect(self.GoToExitScript)
 
-    # Result printing functions
-    def PrintRsltFltPln(self):
-        print('Flight planning print button successful')
 
 if __name__ == "__main__":
     import sys
