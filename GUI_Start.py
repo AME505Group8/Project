@@ -8,10 +8,22 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from GUI.GUI_RsltFltPln import Ui_GUI_RsltFltPln
 from GUI.GUI_RsltKmeans import Ui_GUI_RsltKmeans
 from GUI_Predict_Function import gui_predict_function
 from KMEANS_V3 import kmeans_plot
+
+# K Means multithread
+class RunKmeans(QRunnable):
+
+    @pyqtSlot()
+
+    def run(self):
+
+        kmeans_plot(a, b, k)
 
 # Flight planning inputs lists
 InputsMonth = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
@@ -230,6 +242,10 @@ InputsKmK = ['', '1', '2', '3', '4', '5', '10', '15', '20']
 class Ui_GUI_Start(object):
 
     def __init__(self):
+        # Multithreading stuff
+        self.threadpool = QThreadPool()
+        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+
         # Window object definition
         self.GUI_RsltFltPln = QtWidgets.QMainWindow()
         self.GUI_RsltFltPln_Ui = Ui_GUI_RsltFltPln()
@@ -322,13 +338,13 @@ class Ui_GUI_Start(object):
             KmDictParam2 = {'Airport ID': 'AIRPORT_ID', 'Aircraft': 'AIRCRAFT', 'Flight Phase': 'PHASE_OF_FLIGHT', 'State': 'STATE'}
             KmDictK = {'1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '10': 10, '15': 15, '20': 20}
 
+            global a, b, k
             a = KmDictParam1[InputsKmParam1[self.KmeansParam1Box.currentIndex()]]
             b = KmDictParam2[InputsKmParam2[self.KmeansParam2Box.currentIndex()]]
             k = KmDictK[InputsKmK[self.KmeansKBox.currentIndex()]]
 
-            print(a, b, k)
-
-            kmeans_plot(a, b, k)
+            worker = RunKmeans()
+            self.threadpool.start(worker)
 
             GUI_Start.hide()
             self.GUI_RsltFltPln.hide()
