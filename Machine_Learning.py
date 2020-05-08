@@ -13,6 +13,7 @@ from keras.models import load_model
 from pandas import DataFrame
 
 
+
 # ## Class Definition #################################################################################################
 
 class Keras_Input:
@@ -58,7 +59,7 @@ class Keras_Input:
     def predict_KNN(self, model_name, input_array):
         # Load and existing model
         model = load_model(str(model_name + '.hd5'))
-        # model.summary()
+        model.summary()
 
         # Generate predictions (probabilities -- the output of the last layer)
         # on new data using `predict`
@@ -122,6 +123,9 @@ def Keras_Training_Data(dataframe, input_name, output, text_dictionary, sample_s
     # Prediction Dataframe, unbalanced
     X1 = dataframe[input_name].values
 
+    # hist = dataframe[output].hist()
+    # plt.show()
+
     # Prediction Dataframe, unbalanced
     y1 = dataframe[output].values
 
@@ -143,10 +147,10 @@ def Keras_NN(X_train_df, X_test_df, y_test_df, y_train_df, X1, y1, input_name, o
     inputs = keras.Input(shape=(size_of_input,), name=input_list)
 
     # Create the first hidden layer, using the relu activation function
-    x = Dense(64, activation='relu', name='dense_1')(inputs)
+    x = Dense(64, activation='elu', name='dense_1')(inputs)
 
     # Create the second hidden layer, using the relu activation function
-    x = Dense(64, activation='relu', name='dense_2')(x)
+    x = Dense(64, activation='elu', name='dense_2')(x)
 
     # Define the output layer
     outputs = Dense(size_of_output, name=output)(x)
@@ -158,9 +162,9 @@ def Keras_NN(X_train_df, X_test_df, y_test_df, y_train_df, X1, y1, input_name, o
     model.summary()
 
     # Create the keras model
-    model.compile(optimizer=keras.optimizers.RMSprop(),  # Optimizer
+    model.compile(optimizer=keras.optimizers.Nadam(),  # Optimizer
                   # Loss function to minimize
-                  loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  loss=keras.losses.no(from_logits=True),
                   # List of metrics to monitor
                   metrics=['sparse_categorical_accuracy'])
 
@@ -173,6 +177,25 @@ def Keras_NN(X_train_df, X_test_df, y_test_df, y_train_df, X1, y1, input_name, o
 
     # Show the test data
     print('\nTest data:', X_test_df)
+
+    print(history.history.keys())
+    # Plot training & validation accuracy values
+    plt.plot(history.history['sparse_categorical_accuracy'])
+    plt.plot(history.history['val_sparse_categorical_accuracy'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()
+
+    # Plot training & validation loss values
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()
 
     # Evaluate the model on the test data using evaluate
     print('\nEvaluate on test data')
