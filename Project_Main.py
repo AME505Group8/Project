@@ -4,9 +4,9 @@
 # This is the main file to call multiple functions and store variable names
 
 import os.path
-import DataFrame_Loader as df_loader
-import Machine_Learning as ml
-from tabulate import tabulate
+from DataFrame_Loader import dataframe_loader, handle_non_numerical_data, dataframe_saver, query_database, \
+    save_dictionary, load_dictionary
+from Machine_Learning import Keras_NN, Load_Keras_NN, Keras_Training_Data, Evaluate_Keras_NN
 
 # ## Variables that may need to be changed #############################################################################
 
@@ -35,7 +35,7 @@ if fresh_load:
     cursor_dict = []
 
 # This is only if you need to revert back to the dataframe before it was preconditioned
-original_dataframe = True
+original_dataframe = False
 
 # Load variables only for original_dataframe
 if original_dataframe:
@@ -58,23 +58,22 @@ conditioned_data_filename = "BIRD_STRIKE_NUM_ONLY.pkl"
 dictionary_filename = "BIRD_STRIKE_DICTIONARY.pkl"
 
 # This is if you want to only load the dataframe after it has been preconditioned
-conditioned_dataframe = False
+conditioned_dataframe = True
 
 train_net = False
 
-load_net = False
+load_net = True
 
 # This is the list to input into the keras neural network
+# input_list = ['STATE', 'INCIDENT_MONTH', 'TIME_OF_DAY', 'AIRPORT_ID', 'TYPE_ENG', 'NUM_ENGS', 'PHASE_OF_FLIGHT']
+# input_list = ['INDICATED_DAMAGE', 'AIRCRAFT', 'AMO', 'EMO', 'AC_CLASS', 'AC_MASS', 'TYPE_ENG', 'NUM_ENGS', 'INGESTED',
+#               'SIZE', 'NUM_STRUCK', 'AOS', 'AC_MASS']
 input_list = ['STATE', 'INCIDENT_MONTH', 'TIME_OF_DAY', 'AIRPORT_ID', 'TYPE_ENG', 'NUM_ENGS', 'PHASE_OF_FLIGHT']
 
 # This is the output of the keras neural network
+# output_name = 'AC_CLASS'
+# output_name = 'DAMAGE_LEVEL'
 output_name = 'AC_CLASS'
-
-# Input Class     Keras_Input(State,Month,Time,Airport,Engine,Num Engs,Phase of Flight)
-input_struct = ml.Keras_Input('CA', 11, 'Night', 'KVNY', 'F', '1', 'Approach', input_list, output_name)
-# input_struct = ml.Keras_Input(input_list)
-
-input_struct.print_self()
 
 # This is the sample size for the balanced training data
 sample_size = 60000
@@ -87,15 +86,10 @@ if train_net:
     save_model = False
 
     # Name to save the model - THIS WILL OVERWRITE MODELS WITH THE SAME NAME
-    save_model_name = 'In_Out_Model'
+    save_model_name = 'In_Out_AIRCRAFT_Model'
 
 if load_net:
     load_model_name = 'In_7_Out_AC_CLASS'
-
-    evaluate_model = True
-
-ac_class_dict = {'NULL': 'Empty', 'A  ': 'Airplane', 'B  ': 'Helicopter', 'J  ': 'Ultralight',
-                 'A/B': 'Airplane or Helicopter', 'C  ': 'Glider', '': 'Empty'}
 
 # ######################################################################################################################
 
@@ -103,11 +97,11 @@ ac_class_dict = {'NULL': 'Empty', 'A  ': 'Airplane', 'B  ': 'Helicopter', 'J  ':
 
 # This function is to load the database for the first time
 if fresh_load:
-    df_loader.query_database(filepath, query, cursor_dict)
+    query_database(filepath, query, cursor_dict)
 
 # This is a function call in order to pull the original data
 elif original_dataframe:
-    df = df_loader.dataframe_loader(original_data_filename)
+    df = dataframe_loader(original_data_filename)
 
     # Correct output looks like this ###########################
     #         INDEX_NR INCIDENT_DATE  ...    LUPDATE  TRANSFER #
@@ -125,14 +119,19 @@ elif original_dataframe:
     # ##########################################################
 
     # This replaces blank space with and empty string (helps with machine learning)
-    df = df.fillna('')
+    # df = df.fillna('')
+    print(df.columns.values)
+    df_time = df['NR_FATALITIES'].dropna()
+    print(df_time)
+    # df_time = df_time[(df_time != 0)]
+    # df_time = df_time[(df_time != 'UNKBS')]
+    # print(df_time[(df_time != 'NULL')])
     df = df.sort_values(by=['INCIDENT_DATE'])
     print(df)
-    print(tabulate(df.head(), headers='keys', tablefmt='psql', showindex=False))
 
     if condition_data:
         # This converts the dataframe into a numbers only format
-        df_numbers, text_values = df_loader.handle_non_numerical_data(df)
+        df_numbers, text_values = handle_non_numerical_data(df)
 
         # Correct output looks like this #######################################################
         #         INDEX_NR  INCIDENT_DATE  INCIDENT_MONTH  ...  PERSON       LUPDATE  TRANSFER #
@@ -149,7 +148,7 @@ elif original_dataframe:
         # 233671    922174   1.565136e+09               8  ...       5  1.578442e+09         0 #
         # ######################################################################################
 
-        print(text_values['STATE'])
+        # print(text_values['STATE'])
 
         # ################################################################################################################
         # {'HI': 0, 'BC': 1, 'CA': 2, 'NV': 3, 'PI': 4, '': 5, 'ON': 6, 'PA': 7, 'LA': 8, 'NY': 9, 'MD': 10, 'SC': 11,   #
@@ -163,17 +162,18 @@ elif original_dataframe:
         # This lets you save the df_numbers dataframe to a file, to load the next time skipping the
         # processing part of the script
         if save_conditioned:
-            df_loader.dataframe_saver(df_numbers, conditioned_data_filename)
+            dataframe_saver(df_numbers, conditioned_data_filename)
             # This lets you save the dictionary that goes along with the df_numbers dataframe
-            df_loader.save_dictionary(text_values, dictionary_filename)
+            save_dictionary(text_values, dictionary_filename)
 
 # This lets you load only the dataframe that has been conditioned without having to process the
 # data on each run
 elif conditioned_dataframe:
     # This loads the saved conditioned file
-    df = df_loader.dataframe_loader(conditioned_data_filename)
+    df = dataframe_loader(conditioned_data_filename)
     # This loads the dictionary file that goes with the conditioned data
-    text_names = df_loader.load_dictionary(dictionary_filename)
+    text_names = load_dictionary(dictionary_filename)
+    print(text_names)
 
     # Correct output looks like this #######################################################
     #         INDEX_NR  INCIDENT_DATE  INCIDENT_MONTH  ...  PERSON       LUPDATE  TRANSFER #
@@ -191,13 +191,7 @@ elif conditioned_dataframe:
     # ######################################################################################
 
     print(df.columns.values)
-    print(text_names['STATE'].keys())
-    print(text_names['TIME_OF_DAY'].keys())
-    print(text_names['AIRPORT_ID'].keys())
-    print(text_names['TYPE_ENG'].keys())
-    print(text_names['NUM_ENGS'].keys())
-    print(text_names['PHASE_OF_FLIGHT'].keys())
-    print(df['INCIDENT_MONTH'].unique())
+    # print(text_names['STATE'])
 
     # Correct output looks like this #################################################################################
     # {'OH': 0, 'IL': 1, '': 2, 'TX': 3, 'AL': 4, 'MI': 5, 'VA': 6, 'WV': 7, 'PA': 8, 'CO': 9, 'MO': 10, 'NC': 11,   #
@@ -214,63 +208,20 @@ elif conditioned_dataframe:
     # {'Night': 0, '': 1, 'Dusk': 2, 'Day': 3, 'Dawn': 4} #
     # #####################################################
 
-    check = text_names['TIME_OF_DAY']
-
-    for columns in input_list:
-        print(text_names[columns])
-
-    predict_input, predict_in_list = input_struct.find_dict_index(text_names)
-    print(predict_input[0].shape)
-
-    X, y, X1, y1, X_train_df, X_test_df, y_train_df, y_test_df, size_of_output = ml.Keras_Training_Data(df, input_list,
+    X, y, X1, y1, X_train_df, X_test_df, y_train_df, y_test_df, size_of_output = Keras_Training_Data(df, input_list,
                                                                                                      output_name,
                                                                                                      text_names,
                                                                                                      sample_size)
 
-    print('\nPrediction Unbalanced Input: ', X1[0])
-    print('\nPrediction Unbalanced Output: ', y1)
-
     if train_net:
-        ml.Keras_NN(X_train_df, X_test_df, y_test_df, y_train_df, X1, y1, input_list, output_name,
+        Keras_NN(X_train_df, X_test_df, y_test_df, y_train_df, X1, y1, input_list, output_name,
                  number_of_epochs, save_model, save_model_name, size_of_output)
     elif load_net:
-        prediction = input_struct.predict_KNN(load_model_name, predict_input)
+        keras_model = Load_Keras_NN(load_model_name, X1, y1)
 
-        prediction_string = input_struct.find_dict_string(text_names)
+        keras_model.summary()
 
-        prediction_name = ac_class_dict[prediction_string[0]]
-        print(prediction_name)
-
-        sorted_df = df[df[output_name] == prediction[0]]
-        sorted_df = sorted_df[sorted_df[input_list[0]] == predict_in_list[0]]
-        sorted_df = sorted_df[sorted_df[input_list[1]] == input_struct.month]
-        sorted_df = sorted_df[sorted_df[input_list[2]] == predict_in_list[2]]
-        sorted_count = sorted_df.groupby('AIRCRAFT').size().reset_index(name='count').sort_values(['count'],
-                                                                                                  ascending=False)
-        sorted_index = sorted_count['AIRCRAFT'].tolist()
-        print(sorted_count)
-        sorted_index = sorted_index[:5]
-        print(sorted_index)
-        ac_list = []
-        for ac_idx in sorted_index:
-            ac_name = [k for k, v in text_names['AIRCRAFT'].items() if v == ac_idx]
-            ac_str = ''.join(ac_name)
-            ac_list.append(ac_str)
-
-        print(text_names['AIRCRAFT'])
-        print(ac_list)
-
-        print(text_names['TYPE_ENG'])
-
-
-        # sorted_df = sorted_df[sorted_df[input_list[3]] == predict_in_list[3]]
-        # sorted_df = sorted_df[sorted_df[input_list[4]] == predict_in_list[4]]
-        # sorted_df = sorted_df[sorted_df[input_list[5]] == predict_in_list[5]]
-        # sorted_df = sorted_df[sorted_df[input_list[6]] == predict_in_list[6]]
-        # keras_model = ml.Load_Keras_NN(load_model_name, X1, y1)
-
-        # if evaluate_model:
-        #     ml.Evaluate_Keras_NN(keras_model, X_test_df, y_test_df)
+        Evaluate_Keras_NN(keras_model, X1, y1)
 
 else:
     print('Check your loading variables, both are currently False')
